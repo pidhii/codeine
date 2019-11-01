@@ -42,7 +42,7 @@
  *   - vector_XXX_shrink(vec)     : Release (maybe) unneeded memory, so the capacity
  *                                  will be equal to its size,
  */
-#if (!defined(VECTOR_TYPE) || !(defined(VECTOR_NAME) || defined(VECTOR_FULL_NAME)))
+#if (!defined(GVEC_TYPE) || !(defined(GVEC_NAME) || defined(GVEC_FULL_NAME)))
 #error Before including "gvec.h" you must define GVEC_TYPE and GVEC[_FULL]_NAME
 #endif
 
