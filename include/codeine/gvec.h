@@ -183,7 +183,7 @@ GVEC_TYPE* _GVEC_METHOD(front)(struct _GVEC* vec)
 }
 
 static __inline__
-GVEC_TYPE* _GVEC* vec)
+GVEC_TYPE* _GVEC_METHOD(bask)(struct _GVEC* vec)
 {
   assert(vec->size);
   return vec->data + vec->size - 1;
