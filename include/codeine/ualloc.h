@@ -57,7 +57,7 @@ _UALLOC_POOL
 #define _UALLOC_POOLS_VEC _UALLOC_APPLY(_UALLOC_CONCAT3, cod_ualloc_pools, _, UALLOC_NAME)
 #define GVEC_FULL_NAME _UALLOC_POOLS_VEC
 #define GVEC_TYPE _UALLOC_POOL
-#include "gvec.h"
+#include "codeine/gvec.h"
 
 _UALLOC
 {
