@@ -34,7 +34,10 @@
     } \
   } while (0)
 #define cod_vec_push(vec, x) \
-  (cod_vec_reserve1(vec), (vec).data[(vec).len++] = x)
+  do { \
+    cod_vec_reserve1(vec); \
+    (vec).data[(vec).len++] = (x); \
+  } while (0)
 #define cod_vec_pop(vec) ((vec).data[--(vec).len])
 
 struct cod_strvec {
