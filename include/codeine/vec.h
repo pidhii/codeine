@@ -17,28 +17,43 @@
 #endif
 
 #define cod_vec(T) struct { T* data; size_t len, cap; }
+
 #define cod_vec_value_type(vec) typeof(*(vec).data)
 #define cod_vec_value_size(vec) sizeof(cod_vec_value_type(vec))
-#define cod_vec_init(vec) \
-  do { \
-    (vec).cap = 0x10; \
-    (vec).len = 0; \
+
+#define cod_vec_init(vec)                                    \
+  do {                                                       \
+    (vec).cap = 0x10;                                        \
+    (vec).len = 0;                                           \
     (vec).data = cod_malloc(cod_vec_value_size(vec) * 0x10); \
   } while (0)
-#define cod_vec_destroy(vec) cod_free((vec).data)
-#define cod_vec_reserve1(vec) \
-  do { \
-    if (cod_unlikely((vec).len == (vec).cap)) { \
-      (vec).cap <<= 1; \
+
+#define cod_vec_destroy(vec) \
+  cod_free((vec).data)
+
+#define cod_vec_reserve1(vec)                                                    \
+  do {                                                                           \
+    if (cod_unlikely((vec).len == (vec).cap)) {                                  \
+      (vec).cap <<= 1;                                                           \
       (vec).data = cod_realloc((vec).data, cod_vec_value_size(vec) * (vec).cap); \
-    } \
+    }                                                                            \
   } while (0)
-#define cod_vec_push(vec, x) \
-  do { \
-    cod_vec_reserve1(vec); \
+
+#define cod_vec_push(vec, x)       \
+  do {                             \
+    cod_vec_reserve1(vec);         \
     (vec).data[(vec).len++] = (x); \
   } while (0)
+
 #define cod_vec_pop(vec) ((vec).data[--(vec).len])
+
+#define cod_vec_iter(vec, i_ident, x_ident, body)              \
+  do {                                                         \
+    for (size_t i_ident = 0; i_ident < (vec).len; ++i_ident) { \
+      cod_vec_value_type(vec) x_ident = (vec).data[i_ident];   \
+      body;                                                    \
+    }                                                          \
+  } while (0)
 
 struct cod_strvec {
   char **data;
