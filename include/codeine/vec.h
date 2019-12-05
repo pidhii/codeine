@@ -16,7 +16,7 @@
 # error "undefined cod_free(void*) || cod_realloc(void*,size_t)"
 #endif
 
-#define cod_vec(T) struct { T* data; size_t len, cap; }
+#define cod_vec(T) struct { T* restrict data; size_t len, cap; }
 
 #define cod_vec_value_type(vec) typeof(*(vec).data)
 #define cod_vec_value_size(vec) sizeof(cod_vec_value_type(vec))
