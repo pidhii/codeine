@@ -16,6 +16,10 @@
 # error "undefined cod_free(void*) || cod_realloc(void*,size_t)"
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define cod_vec(T) struct { T* restrict data; size_t len, cap; }
 
 #define cod_vec_value_type(vec) typeof(*(vec).data)
@@ -131,5 +135,9 @@ cod_ptrvec_pop(struct cod_ptrvec *vec, void (*free)(void*));
 
 void
 cod_ptrvec_insert(struct cod_ptrvec *vec, void *str, size_t at, void* (*copy)(void*));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
