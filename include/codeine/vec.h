@@ -49,14 +49,40 @@ extern "C" {
     (vec).data[(vec).len++] = (x); \
   } while (0)
 
+#define cod_vec_emplace(vec, ctor...)                         \
+  do {                                                        \
+    cod_vec_reserve1(vec);                                    \
+    (vec).data[(vec).len++] = (cod_vec_value_type(vec)) ctor; \
+  } while (0)
+
 #define cod_vec_pop(vec) ((vec).data[--(vec).len])
 
-#define cod_vec_iter(vec, i_ident, x_ident, body)              \
+#define cod_vec_iter(vec, i_ident, x_ident, body...)           \
   do {                                                         \
     for (size_t i_ident = 0; i_ident < (vec).len; ++i_ident) { \
       cod_vec_value_type(vec) x_ident = (vec).data[i_ident];   \
       body;                                                    \
     }                                                          \
+  } while (0)
+
+#define cod_vec_riter(vec, i_ident, x_ident, body...)            \
+  do {                                                           \
+    for (int i_ident = (vec).len - 1; i_ident >= 0; --i_ident) { \
+      cod_vec_value_type(vec) x_ident = (vec).data[i_ident];     \
+      body;                                                      \
+    }                                                            \
+  } while (0)
+
+#define cod_vec_insert(vec, x, k)                                                       \
+  do {                                                                                  \
+    if (k == vec.len) {                                                                 \
+      cod_vec_push(vec, x);                                                             \
+    } else {                                                                            \
+      cod_vec_reserve1(vec);                                                            \
+      memmove(vec.data + k + 1, vec.data + k, cod_vec_value_size(vec) * (vec.len - k)); \
+      vec.data[k] = x;                                                                  \
+      vec.len += 1;                                                                     \
+    }                                                                                   \
   } while (0)
 
 struct cod_strvec {
