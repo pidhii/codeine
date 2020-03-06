@@ -57,6 +57,9 @@ extern "C" {
 
 #define cod_vec_pop(vec) ((vec).data[--(vec).len])
 
+#define cod_vec_last(vec) ((vec).data[(vec).len - 1])
+#define cod_vec_last_ptr(vec) (&(vec).data[(vec).len - 1])
+
 #define cod_vec_iter(vec, i_ident, x_ident, body...)           \
   do {                                                         \
     for (size_t i_ident = 0; i_ident < (vec).len; ++i_ident) { \
