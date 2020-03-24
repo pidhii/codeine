@@ -4,23 +4,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define cod_likely(expr) __builtin_expect(!!(expr), 1)
-#define cod_unlikely(expr) __builtin_expect((expr), 0)
-
-#if !defined(cod_malloc)
-# include <stdlib.h>
-# define cod_malloc malloc
-# define cod_free free
-# define cod_realloc realloc
-#elif !defined(cod_free) || !defined(cod_realloc)
-# error "undefined cod_free(void*) || cod_realloc(void*,size_t)"
-#endif
+#include "codeine/common.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define cod_vec(T) struct { T* restrict data; size_t len, cap; }
+#define cod_vec(T) struct { T* data; size_t len, cap; }
 
 #define cod_vec_value_type(vec) typeof(*(vec).data)
 #define cod_vec_value_size(vec) sizeof(cod_vec_value_type(vec))
