@@ -66,17 +66,26 @@ extern "C" {
     }                                                            \
   } while (0)
 
-#define cod_vec_insert(vec, x, k)                                                       \
-  do {                                                                                  \
-    if (k == vec.len) {                                                                 \
-      cod_vec_push(vec, x);                                                             \
-    } else {                                                                            \
-      cod_vec_reserve1(vec);                                                            \
-      memmove(vec.data + k + 1, vec.data + k, cod_vec_value_size(vec) * (vec.len - k)); \
-      vec.data[k] = x;                                                                  \
-      vec.len += 1;                                                                     \
-    }                                                                                   \
+#define cod_vec_insert(vec, k, x)                     \
+  do {                                                \
+    if (k == (vec).len) {                             \
+      cod_vec_push((vec), x);                         \
+    } else {                                          \
+      cod_vec_reserve1(vec);                          \
+      memmove((vec).data + k + 1, (vec).data + k,     \
+          cod_vec_value_size(vec) * ((vec).len - k)); \
+      (vec).data[k] = x;                              \
+      (vec).len += 1;                                 \
+    }                                                 \
   } while (0)
+
+#define cod_vec_erase(vec, k)                       \
+  do {                                              \
+    memmove((vec).data + k, (vec).data + k + 1,     \
+        cod_vec_value_size(vec) * ((vec).len - k)); \
+    (vec).len -= 1;                                 \
+  } while (0)
+
 
 struct cod_strvec {
   char **data;
