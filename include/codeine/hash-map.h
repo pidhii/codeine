@@ -41,4 +41,11 @@ cod_hash_map_erase(cod_hash_map *map, const char *key, size_t hash,
 cod_hash_map_elt*
 cod_hash_map_find(const cod_hash_map *map, const char *key, uint64_t hash);
 
+void
+cod_hash_map_begin(const cod_hash_map *map, cod_hash_map_iter *iter);
+
+int
+cod_hash_map_next(const cod_hash_map *map, char **key, void *val,
+    cod_hash_map_iter *iter);
+
 #endif

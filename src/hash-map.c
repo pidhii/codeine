@@ -169,3 +169,43 @@ cod_hash_map_erase(cod_hash_map *map, const char *key, size_t hash,
     return 0;
   }
 }
+
+static int
+next_bucket(const cod_hash_map *map, int from)
+{
+  for (size_t i = from; i < map->cap; ++i)
+  {
+    cod_bucket *buck = map->data + i;
+    if (buck->data && buck->len > 0)
+      return i;
+  }
+  return -1;
+}
+
+void
+cod_hash_map_begin(const cod_hash_map *map, cod_hash_map_iter *iter)
+{
+  int ib = next_bucket(map, 0);
+  iter->buckidx = ib;
+  iter->eltidx = 0;
+}
+
+int
+cod_hash_map_next(const cod_hash_map *map, char **key, void *val,
+    cod_hash_map_iter *iter)
+{
+  if (iter->buckidx < 0)
+    return 0;
+
+  cod_bucket *buck = map->data + iter->buckidx;
+
+  if (key) *key = buck->data[iter->eltidx].key;
+  if (val) *(void**)val = buck->data[iter->eltidx].val;
+
+  if (++iter->eltidx == (int)buck->len)
+  {
+    iter->buckidx = next_bucket(map, iter->buckidx + 1);
+    iter->eltidx = 0;
+  }
+  return 1;
+}
