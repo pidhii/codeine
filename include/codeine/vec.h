@@ -23,7 +23,13 @@ extern "C" {
   } while (0)
 
 #define cod_vec_destroy(vec) \
-  cod_free((vec).data)
+  do {                       \
+    if ((vec).data)          \
+      cod_free((vec).data);  \
+    (vec).data = NULL;       \
+    (vec).len = 0;           \
+    (vec).cap = 0;           \
+  } while (0)
 
 #define cod_vec_reserve1(vec)                                                    \
   do {                                                                           \
