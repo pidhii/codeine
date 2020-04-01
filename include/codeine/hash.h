@@ -33,4 +33,7 @@ cod_sdbm(const char *str)
   return hash;
 }
 
+uint32_t
+cod_halfsiphash(const uint8_t key[16], const uint8_t *m, size_t len);
+
 #endif

@@ -41,7 +41,7 @@ cod_hash_map_delete(cod_hash_map *restrict map, void (*dtor)(void*))
 }
 
 static int
-find(const cod_hash_map *map, const char *key, uint64_t hash,
+find(const cod_hash_map *map, const char *key, uint32_t hash,
     cod_hash_map_iter *iter)
 {
   size_t buckidx = hash & (map->cap - 1);
@@ -73,7 +73,7 @@ find(const cod_hash_map *map, const char *key, uint64_t hash,
 }
 
 cod_hash_map_elt*
-cod_hash_map_find(const cod_hash_map *map, const char *key, uint64_t hash)
+cod_hash_map_find(const cod_hash_map *map, const char *key, uint32_t hash)
 {
   cod_hash_map_iter iter;
   if (find(map, key, hash, &iter))
@@ -82,6 +82,7 @@ cod_hash_map_find(const cod_hash_map *map, const char *key, uint64_t hash)
     return NULL;
 }
 
+// TODO: don't reallocate keys
 static void
 rehash(cod_hash_map *map, size_t newcap)
 {
@@ -102,9 +103,8 @@ rehash(cod_hash_map *map, size_t newcap)
       for (size_t ielt = 0; ielt < buck->len; ++ielt)
       {
         cod_hash_map_elt *elt = buck->data + ielt;
-        int ok = cod_hash_map_insert(map, elt->key, elt->hash, elt->val, 0);
+        int ok = cod_hash_map_insert_drain(map, elt->key, elt->hash, elt->val, 0);
         assert(ok);
-        free(elt->key);
       }
       cod_vec_destroy(*buck);
     }
@@ -112,39 +112,63 @@ rehash(cod_hash_map *map, size_t newcap)
   free(olddata);
 }
 
-int
-cod_hash_map_insert(cod_hash_map *map, const char *key, size_t hash, void *val,
-    void (*dtor)(void*))
+static cod_hash_map_elt*
+raw_insert(cod_hash_map *map, const char *key, size_t hash, void (*dtor)(void*))
 {
   cod_hash_map_iter iter;
   if (find(map, key, hash, &iter))
   {
-    if (dtor == NULL) return 0;
+    if (dtor == NULL) return NULL;
     cod_hash_map_elt *elt = &map->data[iter.buckidx].data[iter.eltidx];
     dtor(elt->val);
-    elt->val = val;
-    return 1;
+    return elt;
   }
   else
   {
     if ((map->size >> (cod_log2_u64(map->cap) - 1)) > 2)
     {
       rehash(map, map->cap << 1);
-      return cod_hash_map_insert(map, key, hash, val, dtor);
+      return raw_insert(map, key, hash, dtor);
     }
 
     cod_bucket *buck = map->data + iter.buckidx;
     if (map->data[iter.buckidx].data == NULL)
       cod_vec_init(*buck);
 
-    int len = strlen(key);
-    char *mykey = cod_malloc(len + 1);
-    memcpy(mykey, key, len + 1);
-    cod_hash_map_elt elt = { .hash = hash, .key = mykey, .val = val };
+    cod_hash_map_elt elt = { 0 };
     cod_vec_push(*buck, elt);
     map->size += 1;
-    return 1;
+    return &cod_vec_last(*buck);
   }
+}
+
+int
+cod_hash_map_insert(cod_hash_map *map, const char *key, size_t hash, void *val,
+    void (*dtor)(void*))
+{
+  cod_hash_map_elt *elt = raw_insert(map, key, hash, dtor);
+  if (elt == NULL) return 0;
+
+  int len = strlen(key);
+  char *mykey = cod_malloc(len + 1);
+  memcpy(mykey, key, len + 1);
+  elt->key = mykey;
+  elt->hash = hash;
+  elt->val = val;
+  return 1;
+}
+
+int
+cod_hash_map_insert_drain(cod_hash_map *map, char *key, size_t hash, void *val,
+    void (*dtor)(void*))
+{
+  cod_hash_map_elt *elt = raw_insert(map, key, hash, dtor);
+  if (elt == NULL) return 0;
+
+  elt->key = key;
+  elt->hash = hash;
+  elt->val = val;
+  return 1;
 }
 
 int

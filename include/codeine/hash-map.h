@@ -8,9 +8,9 @@ static void
 cod_dummy_dtor(void* _) { }
 
 typedef struct {
-  size_t hash;
   char *key;
   void *val;
+  uint32_t hash;
 } cod_hash_map_elt;
 
 typedef cod_vec(cod_hash_map_elt) cod_bucket;
@@ -35,11 +35,15 @@ cod_hash_map_insert(cod_hash_map *map, const char *key, size_t hash, void *val,
     void (*dtor)(void*));
 
 int
+cod_hash_map_insert_drain(cod_hash_map *map, char *key, size_t hash, void *val,
+    void (*dtor)(void*));
+
+int
 cod_hash_map_erase(cod_hash_map *map, const char *key, size_t hash,
     void (*dtor)(void*));
 
 cod_hash_map_elt*
-cod_hash_map_find(const cod_hash_map *map, const char *key, uint64_t hash);
+cod_hash_map_find(const cod_hash_map *map, const char *key, uint32_t hash);
 
 void
 cod_hash_map_begin(const cod_hash_map *map, cod_hash_map_iter *iter);
