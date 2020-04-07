@@ -39,7 +39,7 @@ extern "C" {
     }                                                                            \
   } while (0)
 
-#define cod_vec_push(vec, x)       \
+#define cod_vec_push(vec, x...)       \
   do {                             \
     cod_vec_reserve1(vec);         \
     (vec).data[(vec).len++] = (x); \
