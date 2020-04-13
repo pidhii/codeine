@@ -22,6 +22,15 @@ extern "C" {
     (vec).data = cod_malloc(cod_vec_value_size(vec) * 0x10); \
   } while (0)
 
+#define cod_vec_init_with_cap(vec, c)                        \
+  do {                                                       \
+    (vec).cap = (c);                                         \
+    if ((vec).cap == 0)                                      \
+      (vec).cap = 0x10;                                      \
+    (vec).len = 0;                                           \
+    (vec).data = cod_malloc(cod_vec_value_size(vec) * 0x10); \
+  } while (0)
+
 #define cod_vec_destroy(vec) \
   do {                       \
     if ((vec).data)          \
