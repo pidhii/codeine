@@ -29,8 +29,8 @@ cod_hash_map_delete(cod_hash_map *restrict map, void (*dtor)(void*))
       for (size_t ielt = 0; ielt < buck->len; ++ielt)
       {
         cod_hash_map_elt *kv = buck->data + ielt;
-        cod_free(kv->key);
         dtor(kv->val);
+        cod_free(kv->key);
       }
       cod_vec_destroy(*buck);
     }
