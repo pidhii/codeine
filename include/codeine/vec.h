@@ -15,11 +15,11 @@ extern "C" {
 #define cod_vec_value_type(vec) typeof(*(vec).data)
 #define cod_vec_value_size(vec) sizeof(cod_vec_value_type(vec))
 
-#define cod_vec_init(vec)                                    \
-  do {                                                       \
-    (vec).cap = 0x10;                                        \
-    (vec).len = 0;                                           \
-    (vec).data = cod_malloc(cod_vec_value_size(vec) * 0x10); \
+#define cod_vec_init(vec) \
+  do {                    \
+    (vec).cap = 0;        \
+    (vec).len = 0;        \
+    (vec).data = NULL;    \
   } while (0)
 
 #define cod_vec_init_with_cap(vec, c)                        \
@@ -43,7 +43,10 @@ extern "C" {
 #define cod_vec_reserve1(vec)                                                    \
   do {                                                                           \
     if (cod_unlikely((vec).len == (vec).cap)) {                                  \
-      (vec).cap <<= 1;                                                           \
+      if (cod_likely((vec).cap))                                                 \
+        (vec).cap <<= 1;                                                         \
+      else                                                                       \
+        (vec).cap = 0x10;                                                        \
       (vec).data = cod_realloc((vec).data, cod_vec_value_size(vec) * (vec).cap); \
     }                                                                            \
   } while (0)
