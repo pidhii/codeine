@@ -84,7 +84,7 @@ extern "C" {
     }                                                            \
   } while (0)
 
-#define cod_vec_insert(vec, k, x)                     \
+#define cod_vec_insert(vec, x, k)                     \
   do {                                                \
     if (k == (vec).len) {                             \
       cod_vec_push((vec), x);                         \
@@ -102,6 +102,12 @@ extern "C" {
     memmove((vec).data + k, (vec).data + k + 1,     \
         cod_vec_value_size(vec) * ((vec).len - k)); \
     (vec).len -= 1;                                 \
+  } while (0)
+
+#define cod_vec_append(vec, begin, end)                                    \
+  do {                                                                     \
+    for (const cod_vec_value_type(vec) *iter = begin; iter != end; ++iter) \
+      cod_vec_push(vec, *iter);                                            \
   } while (0)
 
 
