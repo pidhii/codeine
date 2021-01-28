@@ -1,15 +1,15 @@
 /* Copyright (C) 2020  Ivan Pidhurskyi
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -20,11 +20,12 @@
 #include <stdio.h>
 
 cod_hash_map*
-cod_hash_map_new(void)
+cod_hash_map_new(int flags)
 {
   cod_hash_map *map = cod_malloc(sizeof(cod_hash_map));
   map->size = 0;
   map->cap = 0x100;
+  map->flags = flags;
   map->data = cod_malloc(sizeof(cod_bucket) * map->cap);
   memset(map->data, 0, sizeof(cod_bucket) * map->cap);
   return map;
@@ -70,14 +71,30 @@ find(const cod_hash_map *map, const char *key, uint32_t hash,
   }
   else
   {
-    for (size_t i = 0; i < buck->len; ++i)
+    if (map->flags & COD_HASH_MAP_INTKEYS)
     {
-      cod_hash_map_elt *elt = buck->data + i;
-      if (elt->hash == hash && strcmp(elt->key, key) == 0)
+      for (size_t i = 0; i < buck->len; ++i)
       {
-        iter->buckidx = buckidx;
-        iter->eltidx = i;
-        return 1;
+        cod_hash_map_elt *elt = buck->data + i;
+        if (elt->hash == hash && elt->key == key)
+        {
+          iter->buckidx = buckidx;
+          iter->eltidx = i;
+          return 1;
+        }
+      }
+    }
+    else
+    {
+      for (size_t i = 0; i < buck->len; ++i)
+      {
+        cod_hash_map_elt *elt = buck->data + i;
+        if (elt->hash == hash && strcmp(elt->key, key) == 0)
+        {
+          iter->buckidx = buckidx;
+          iter->eltidx = i;
+          return 1;
+        }
       }
     }
 
@@ -164,10 +181,17 @@ cod_hash_map_insert(cod_hash_map *map, const char *key, size_t hash, void *val,
   cod_hash_map_elt *elt = raw_insert(map, key, hash, dtor);
   if (elt == NULL) return 0;
 
-  int len = strlen(key);
-  char *mykey = cod_malloc(len + 1);
-  memcpy(mykey, key, len + 1);
-  elt->key = mykey;
+  if (map->flags & COD_HASH_MAP_INTKEYS)
+  {
+    elt->key = (char*)key;
+  }
+  else
+  {
+    int len = strlen(key);
+    char *mykey = cod_malloc(len + 1);
+    memcpy(mykey, key, len + 1);
+    elt->key = mykey;
+  }
   elt->hash = hash;
   elt->val = val;
   return 1;
